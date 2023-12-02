@@ -5,8 +5,7 @@ const filePath = "./puzzleInput.txt";
 const fileContent = fs.readFileSync(filePath, "utf-8");
 const lines = fileContent.split("\n");
 
-let sumOfValidIDs = 0;
-let gameID = 1;
+let sumOfPowers = 0;
 
 for (let line of lines) {
 	const indexOfColon = line.indexOf(":");
@@ -37,11 +36,9 @@ for (let line of lines) {
 		}
 	}
 
-	if (minimumRGBs[0] <= 12 && minimumRGBs[1] <= 13 && minimumRGBs[2] <= 14) {
-		sumOfValidIDs += gameID;
-	}
+	const power = minimumRGBs.reduce((accumulator, currentValue) => accumulator * currentValue, 1);
 
-	gameID++;
+    sumOfPowers += power;
 }
 
-console.log(sumOfValidIDs);
+console.log(sumOfPowers);

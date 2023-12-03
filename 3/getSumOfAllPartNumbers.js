@@ -11,23 +11,13 @@ for (const line of lines) {
 	engineSchematicArray.push(line.split(""));
 }
 
-const symbols = new Set();
-const symbolsRegex = /[^\d.]/;
+const gearAdjacencies = new Map();
 
-for (let i = 0; i < engineSchematicArray.length; i++) {
-	for (let j = 0; j < engineSchematicArray[i].length; j++) {
-		if (engineSchematicArray[i][j].match(symbolsRegex)) {
-			symbols.add(engineSchematicArray[i][j]);
-		}
-	}
-}
-
-let sumOfAllPartNumbers = 0;
+let sumOfAllGearRations = 0;
 const allNumbers = [];
 const numberData = new Map();
-const validPartsNumbers = new Set();
 
-const isAdjacentToSymbol = (row, startingColumnIndex, numberOfDigits) => {
+const getAsteriskCoordinate = (row, startingColumnIndex, numberOfDigits) => {
 	const left = startingColumnIndex - 1 >= 0 ? startingColumnIndex - 1 : 0;
 	const top = row - 1 >= 0 ? row - 1 : 0;
 	const right =
@@ -40,22 +30,26 @@ const isAdjacentToSymbol = (row, startingColumnIndex, numberOfDigits) => {
 			: engineSchematicArray.length - 1;
 
 	for (let i = left; i <= right; i++) {
-		if (
-			symbols.has(engineSchematicArray[top][i]) ||
-			symbols.has(engineSchematicArray[bottom][i])
-		) {
-			return true;
+		if (engineSchematicArray[top][i] === "*") {
+			return top * engineSchematicArray[top].length + i;
 		}
 	}
 
-	if (
-		symbols.has(engineSchematicArray[row][left]) ||
-		symbols.has(engineSchematicArray[row][right])
-	) {
-		return true;
+	for (let i = left; i <= right; i++) {
+		if (engineSchematicArray[bottom][i] === "*") {
+			return bottom * engineSchematicArray[bottom].length + i;
+		}
 	}
 
-	return false;
+	if (engineSchematicArray[row][left] === "*") {
+		return row * engineSchematicArray[row].length + left;
+	}
+
+	if (engineSchematicArray[row][right] === "*") {
+		return row * engineSchematicArray[row].length + right;
+	}
+
+	return -1;
 };
 
 const processNumberString = (numberString, i, j) => {
@@ -98,10 +92,35 @@ for (let i = 0; i < engineSchematicArray.length; i++) {
 
 for (const [number, data] of numberData) {
 	for (const datum of data) {
-		if (isAdjacentToSymbol(datum[0], datum[1], datum[2])) {
-			sumOfAllPartNumbers += number;
+		const adjacentAsteriskCoordinate = getAsteriskCoordinate(
+			datum[0],
+			datum[1],
+			datum[2]
+		);
+
+		if (adjacentAsteriskCoordinate >= 0) {
+			if (!gearAdjacencies.has(adjacentAsteriskCoordinate)) {
+				gearAdjacencies.set(adjacentAsteriskCoordinate, [number]);
+			} else {
+				const currentAdjacencies = gearAdjacencies.get(
+					adjacentAsteriskCoordinate
+				);
+				currentAdjacencies.push(number);
+				gearAdjacencies.set(
+					adjacentAsteriskCoordinate,
+					currentAdjacencies
+				);
+			}
 		}
 	}
 }
 
-console.log(sumOfAllPartNumbers);
+for(const [gear, adjacencies] of gearAdjacencies){
+	if(adjacencies.length === 2){
+		const gearRatio = adjacencies[0] * adjacencies[1];
+		
+		sumOfAllGearRations += gearRatio;
+	}
+}
+
+console.log(sumOfAllGearRations);

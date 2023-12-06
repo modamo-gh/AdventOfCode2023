@@ -29,12 +29,20 @@ const partOne = (lines) => {
 	console.log(productOfNumberOfWaysToWin);
 };
 
+const partTwo = lines => {
+    for(let i = 0; i < lines.length; i++){
+        lines[i] = parseInt(lines[i].join(""));
+    }
+
+    const roots = getRoots(-1, lines[0], -1 * lines[1]);
+    const numberOfWaysToWin = roots[1] - roots[0] + 1;
+    console.log(numberOfWaysToWin)
+}
+
 const getRoots = (a, b, c) => {
 	const roots = [];
 	let x1 = (-b + Math.sqrt(b ** 2 - 4 * a * c)) / (2 * a);
 	let x2 = (-b - Math.sqrt(b ** 2 - 4 * a * c)) / (2 * a);
-
-	console.log(x1, x2);
 
 	if (x1 === Math.ceil(x1)) {
 		x1++;
@@ -53,4 +61,4 @@ const getRoots = (a, b, c) => {
 	return roots;
 };
 
-partOne(lines);
+partTwo(lines);

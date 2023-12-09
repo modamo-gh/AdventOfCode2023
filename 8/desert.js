@@ -41,4 +41,66 @@ const partOne = (directions, network) => {
 	return numberOfStepsToZZZ;
 };
 
-console.log(partOne(directions, network));
+const partTwo = (directions, network) => {
+	let positions = [...network.keys()].filter((node) => node[2] === "A");
+	const stepsToZNodes = positions.map((position) => {
+		let stepsToZNode = 0;
+		let endsInZ = false;
+		let directionIndex = 0;
+
+		while (!endsInZ) {
+			if (directions[directionIndex] === "L") {
+				position = network.get(position)[0];
+			} else if (directions[directionIndex] === "R") {
+				position = network.get(position)[1];
+			}
+
+			stepsToZNode++;
+
+			if (position[2] === "Z") {
+				endsInZ = true;
+			} else {
+				directionIndex = (directionIndex + 1) % directions.length;
+			}
+		}
+
+		return stepsToZNode;
+	});
+
+	const lcm = calculateLCM(stepsToZNodes);
+
+	return lcm;
+};
+
+const calculateLCM = (integers) => {
+	const primeFactorizations = integers.map((integer) => {
+		const primeFactorization = (integer) => {
+			for (let i = 2; i < Math.sqrt(integer); i++) {
+				if (integer % i === 0) {
+					return [
+						primeFactorization(i),
+						primeFactorization(integer / i),
+					].flat();
+				}
+			}
+
+			return [integer];
+		};
+
+		return primeFactorization(integer);
+	});
+
+	const lcm_Factors = [];
+
+	for (const primeFactorization of primeFactorizations) {
+		for (const primeFactor of primeFactorization) {
+			if (!lcm_Factors.includes(primeFactor)) {
+				lcm_Factors.push(primeFactor);
+			}
+		}
+	}
+
+	return lcm_Factors.reduce((product, factor) => product * factor, 1);
+};
+
+console.log(partTwo(directions, network));

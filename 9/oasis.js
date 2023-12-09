@@ -31,4 +31,30 @@ const partOne = (lines) => {
 	return sumOfAllPredictions;
 };
 
-console.log(partOne(lines))
+const partTwo = (lines) => {
+	const histories = lines.map((line) =>
+		line.split(/\s+/).map((value) => parseInt(value))
+	);
+
+	const predictFirstValue = (array) => {
+		if (!array.length) {
+			return 0;
+		}
+
+		const differences = [];
+
+		for (let i = 0; i < array.length - 1; i++) {
+			differences.push(array[i + 1] - array[i]);
+		}
+
+		return array[0] - predictFirstValue(differences);
+	};
+
+	const sumOfAllPredictions = histories
+		.map((history) => predictFirstValue(history))
+		.reduce((sum, predictedNextValue) => sum + predictedNextValue, 0);
+
+	return sumOfAllPredictions;
+};
+
+console.log(partTwo(lines))

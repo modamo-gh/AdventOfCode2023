@@ -57,6 +57,51 @@ const expandUniverse = (universe) => {
 	return universe;
 };
 
+const rowsToExpand = [];
+const columnsToExpand = [];
+
+const mathematicallyExpandUniverse = (galaxyLocations, universe) => {
+
+
+	for (let row = 0; row < universe.length; row++) {
+		const cosmicElements = new Set(universe[row]);
+		if (cosmicElements.size === 1 && cosmicElements.has(".")) {
+			rowsToExpand.push(row);
+		}
+	}
+
+	for (let column = 0; column < universe[0].length; column++) {
+		const cosmicElements = new Set();
+
+		for (let row = 0; row < universe.length; row++) {
+			cosmicElements.add(universe[row][column]);
+		}
+
+		if (cosmicElements.size === 1 && cosmicElements.has(".")) {
+			columnsToExpand.push(column);
+		}
+	}
+
+	for (let i = 0; i < galaxyLocations.length; i++) {
+		let row = Math.floor(galaxyLocations[i] / universe[0].length);
+		let column = galaxyLocations[i] % universe[0].length;
+
+        console.log(row, column);
+		row += rowsToExpand.filter(insert => row >= insert).length * (Math.pow(10, 6) - 1);
+
+		column += columnsToExpand.filter(
+			(insert) => column >= insert
+		).length * (Math.pow(10, 6) - 1);
+
+		console.log(row, column);
+
+		galaxyLocations[i] =
+			row * (universe[0].length + columnsToExpand.length * (Math.pow(10, 6)- 1)) + column;
+	}
+
+	return galaxyLocations;
+};
+
 const discoverGalaxies = (universe) => {
 	const galaxyLocations = [];
 
@@ -78,7 +123,7 @@ const calculateAllShortestPaths = (galaxyLocations) => {
 	const helper = (index) => {
 		if (galaxies.length === 2) {
 			const [x, y] = galaxies;
-			const rowLength = universe[0].length;
+			const rowLength = universe[0].length + (columnsToExpand.length * (Math.pow(10, 6) - 1));
 
 			const rowX = Math.floor(x / rowLength);
 			const columnX = x % rowLength;
@@ -105,8 +150,8 @@ const calculateAllShortestPaths = (galaxyLocations) => {
 	return shortestPaths;
 };
 
-universe = expandUniverse(universe);
-const galaxyLocations = discoverGalaxies(universe);
+let galaxyLocations = discoverGalaxies(universe);
+galaxyLocations = mathematicallyExpandUniverse(galaxyLocations, universe);
 
 const shortestPaths = calculateAllShortestPaths(galaxyLocations);
 
